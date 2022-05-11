@@ -46,7 +46,7 @@ def clientthread(conn, addr):
 
 	while True:
 			try:
-				message = conn.recv(2048)
+				message = conn.recv(2048).decode()
 				if message:
 
 					"""prints the message and address of the
@@ -73,7 +73,7 @@ def broadcast(message, connection):
 	for clients in list_of_clients:
 		if clients!=connection:
 			try:
-				clients.send(message)
+				clients.send(message.encode())
 			except:
 				clients.close()
 
