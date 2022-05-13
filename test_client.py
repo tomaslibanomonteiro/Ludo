@@ -4,7 +4,12 @@ import select
 import sys
 import time
 
-DEFAULT_IP_ADDRESS = "192.168.1.252"
+#wifi from home
+#DEFAULT_IP_ADDRESS = "192.168.1.252"
+
+#hotspot Ricardo ifconfig -a
+DEFAULT_IP_ADDRESS = "192.168.43.73"
+
 DEFAULT_PORT_NUMBER = 8081
 SLEEP_TIME = 0.2 #seconds to wait until recv
 
