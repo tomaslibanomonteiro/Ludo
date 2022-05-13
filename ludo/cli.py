@@ -86,9 +86,8 @@ class CLIGame():
     def get_user_initial_choice(self):
         text = linesep.join(["choose option",
                              "0 - start new game",
-                             "1 - continue game",
-                             "2 - run (review) recorded game"])
-        choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1, 2))
+                             "1 - run (review) recorded game"])
+        choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
         return choice
 
     def prompt_for_file(self, mode="rb"):
@@ -288,37 +287,10 @@ class CLIGame():
             self.prompt_to_continue(MASTER)
             self.print_board()
 
-    def continue_recorded_game(self):
-        '''move forward the game by calling 
-        play_turn method to the moment 
-        where game was interrupted. 
-        '''
-        self.load_recorded_players()
-        self.record_players()
-        for rolled_value, index in self.record_runner:
-            self.game.play_turn(index, rolled_value)
-            self.record_maker.add_game_turn(
-                self.game.rolled_value, self.game.index)
-        self.print_players_info()
-        self.print_info_after_turn()
-        self.print_board()
-
     def record_players(self):
         '''save players on recorder'''
         for player in self.game.players:
             self.record_maker.add_player(player)
-
-    def load_recorded_players(self):
-        '''get recorded (save) players from
-        recorder and put them in game
-        '''
-        if self.record_runner is None:
-            file_descr = self.prompt_for_file()
-            self.record_runner = RunRecord(file_descr)
-            file_descr.close()
-        for player in self.record_runner.get_players(
-                self.prompt_choose_pawn):
-            self.game.add_player(player)
 
     def wait_for_connections(self):            
         #wait for other players to connect
@@ -379,16 +351,7 @@ class CLIGame():
             if choice == 0:  # start new game
                 self.load_players_for_new_game()
                 self.play_game()
-            elif choice == 1:  # continue game
-                self.continue_recorded_game()
-                if self.game.finished:
-                    print("Could not continue.",
-                          "Game is already finished",
-                          linesep + "Exit")
-                else:
-                    self.prompt_to_continue(MASTER)
-                    self.play_game()
-            elif choice == 2:  # review played game
+            elif choice == 1:  # review played game
                 self.run_recorded_game()
         except (KeyboardInterrupt, EOFError):
             self.myprint(PRINT_TO_ALL,linesep + "Exit Game")
