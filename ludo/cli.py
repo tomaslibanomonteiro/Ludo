@@ -3,6 +3,7 @@ from .painter import present_6_die_name
 from .recorder import RunRecord, MakeRecord
 from os import linesep
 
+MASTER = 1
 
 class CLIGame():
 
@@ -16,7 +17,25 @@ class CLIGame():
         # getting game data
         self.record_runner = None
 
-    def validate_input(self, prompt, desire_type, allawed_input=None,
+    def myprint(self, players, msg):
+        #send the msg to the players
+        for this_player in self.game.players:
+            if this_player.ID in players and this_player.conn is not None:
+                this_player.conn.send(msg.encode())
+
+        return 
+
+    def myinput(self, player, msg):
+        #get the input from corresponding player
+        for this_player in self.game.players:
+            if this_player.ID == player: 
+                break
+        this_player.conn.send(msg.encode())
+        msg = this_player.conn.recv(2048).decode()
+
+        return msg
+
+    def validate_input(self, player_input, players_output, prompt, desire_type, allawed_input=None,
                        error_mess="Invalid Option!", str_len=None):
         '''
         loop while receive correct value
@@ -25,30 +44,30 @@ class CLIGame():
         '''
         prompt += linesep + self.prompt_end
         while True:
-            choice = input(prompt)
+            choice = self.myinput(player_input, prompt)
             if not choice:
-                print(linesep + error_mess)
+                self.myprint(players_output, linesep + error_mess)
                 continue
             try:
                 choice = desire_type(choice)
             except ValueError:
-                print(linesep + error_mess)
+                self.myprint(players_output,linesep + error_mess)
                 continue
             if allawed_input:
                 if choice in allawed_input:
                     break
                 else:
-                    print("Invalid Option!")
+                    self.myprint(players_output,"Invalid Option!")
                     continue
             elif str_len:
                 min_len, max_len = str_len
                 if min_len < len(choice) < max_len:
                     break
                 else:
-                    print(linesep + error_mess)
+                    self.myprint(players_output,linesep + error_mess)
             else:
                 break
-        print()
+        self.myprint(players_output,'\n')
         return choice
 
     def get_user_initial_choice(self):
@@ -56,7 +75,7 @@ class CLIGame():
                              "0 - start new game",
                              "1 - continue game",
                              "2 - run (review) recorded game"])
-        choice = self.validate_input(text, int, (0, 1, 2))
+        choice = self.validate_input(MASTER, MASTER, text, int, (0, 1, 2))
         return choice
 
     def prompt_for_file(self, mode="rb"):
@@ -82,7 +101,7 @@ class CLIGame():
         return choice == 1
 
     def prompt_for_player(self):
-        ''' get player attributes from input,
+        ''' get player attributes from myinput,
         initial player instance and
         add player to the game
         '''
@@ -114,7 +133,7 @@ class CLIGame():
             # automatically assign colours
             colour = available_colours.pop()
             player = Player(colour)
-        self.game.add_palyer(player)
+        self.game.add_player(player)
 
     def prompt_for_players(self):
         '''put all players in the game'''
@@ -158,7 +177,7 @@ class CLIGame():
 
     def prompt_to_continue(self):
         text = "press Enter to continue" + linesep
-        input(text)
+        self.myinput(MASTER,text) #!
 
     def print_players_info(self):
         word = "start" if self.game.rolled_value is None else "continue"
@@ -246,7 +265,7 @@ class CLIGame():
             file_descr.close()
         for player in self.record_runner.get_players(
                 self.prompt_choose_pawn):
-            self.game.add_palyer(player)
+            self.game.add_player(player)
 
     def load_players_for_new_game(self):
         self.prompt_for_players()
@@ -283,8 +302,12 @@ class CLIGame():
             file_descr.close()
             print("Game is saved")
 
-    def start(self):
+    def start(self, master_conn, server):
         '''main method, starting cli'''
+        self.master_conn = master_conn
+        self.server = server
+        master = Player(MASTER, "yellow", 'Master', None, master_conn)
+        self.game.add_player(master)
         print()
         try:
             choice = self.get_user_initial_choice()

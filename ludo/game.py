@@ -14,13 +14,15 @@ class Player():
     and choose which pawn to move
     if more than one are possible
     '''
-    def __init__(self, colour, name=None, choose_pawn_delegate=None):
+    def __init__(self, ID, colour, name=None, choose_pawn_delegate=None, conn=None):
         '''choose_pawn_delegate is callable.
         if choose_pawn_delegate is not None it is called
         with argument list of available pawns to move
         and expect chosen index from this list
         if it is None (means computer) random index is chosen
         '''
+        self.conn = conn
+        self.ID = ID
         self.colour = colour
         self.choose_pawn_delegate = choose_pawn_delegate
         self.name = name
@@ -206,7 +208,7 @@ class Game():
         # jog pawn if any 
         self.jog_pawns = []
 
-    def add_palyer(self, player):
+    def add_player(self, player):
         self.players.append(player)
         for pawn in player.pawns:
             self.board.put_pawn_on_board_pool(pawn)
