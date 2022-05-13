@@ -25,6 +25,7 @@ MESSAGE_LIST = [START_NEM_GAME, MASTER_NAME, COLOUR,
                         HUMAN_TYPE, NAME2, COLOUR,
                         ADD_PLAYER, PC_TYPE,
                         ADD_PLAYER, HUMAN_TYPE, NAME4]
+                        
 """
 def myrecv(server):
     while True: 

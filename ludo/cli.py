@@ -13,7 +13,7 @@ class CLIGame():
     def __init__(self):
         self.prompt_end = "> "
         self.game = Game()
-        # used for nicer print
+        # used for nicer printing
         self.prompted_for_pawn = False
         # saving game data
         self.record_maker = MakeRecord()
@@ -80,7 +80,7 @@ class CLIGame():
                     self.myprint(players_output,linesep + error_mess)
             else:
                 break
-        #!self.myprint(players_output,'\n')
+        self.myprint(players_output,'\n')
         return choice
 
     def get_user_initial_choice(self):
@@ -95,7 +95,7 @@ class CLIGame():
         '''return file descriptor'''
         text = "Enter filename (name of the record)"
         while True:
-            filename = self.validate_input(text, str)
+            filename = self.validate_input(MASTER, [MASTER], text, str)
             try:
                 file_descr = open(filename, mode=mode)
                 return file_descr
@@ -110,7 +110,7 @@ class CLIGame():
         text = linesep.join(["Save game?",
                              "0 - No",
                              "1 - Yes"])
-        choice = self.validate_input(text, int, (0, 1))
+        choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
         return choice == 1
 
     def prompt_for_player(self):
@@ -205,14 +205,20 @@ class CLIGame():
                         for index, pawn
                         in enumerate(self.game.allowed_pawns)]
         text += linesep.join(pawn_options)
-        index = self.validate_input(
+        index = self.validate_input(self.game.curr_player.ID, [self.game.curr_player.ID],
             text, int, range(1, len(self.game.allowed_pawns) + 1))
         self.prompted_for_pawn = True
         return index - 1
 
-    def prompt_to_continue(self):
-        text = "press Enter to continue" + linesep
-        self.myinput(MASTER,text) #!
+    def prompt_to_continue(self, player_input_ID):
+        for player in self.game.players:
+            if player.ID == player_input_ID:
+                break
+        if player.conn is None:
+            return
+        else:
+            text = "press Enter to continue" + linesep
+            self.myinput(player_input_ID,text) 
 
     def print_players_info(self):
         word = "start" if self.game.rolled_value is None else "continue"
@@ -221,12 +227,12 @@ class CLIGame():
               len(self.game.players)))
         for player in self.game.players:
             self.myprint(PRINT_TO_ALL,"{}({})".format(player.name, player.colour))
-        print()
+        self.myprint(PRINT_TO_ALL,'\n')
 
     def print_info_after_turn(self):
-        '''it used game attributes to print info'''
+        '''it used game attributes to printing info'''
         pawns_id = [pawn.id for pawn in self.game.allowed_pawns]
-        # nicer print of dice
+        # nicer printing of dice
         message = present_6_die_name(self.game.rolled_value,
                                      str(self.game.curr_player))
         message += linesep
@@ -235,7 +241,7 @@ class CLIGame():
                 self.game.picked_pawn.id)
             if self.prompted_for_pawn:
                 self.prompted_for_pawn = False
-                print(message_moved)
+                self.myprint(PRINT_TO_ALL,message_moved)
                 return
             message += "{} possible pawns to move.".format(
                 " ".join(pawns_id))
@@ -245,16 +251,16 @@ class CLIGame():
                 message += " ".join([pawn.id for pawn in self.game.jog_pawns])
         else:
             message += "No possible pawns to move."
-        print(message)
+        self.myprint(PRINT_TO_ALL,message)
 
     def print_standing(self):
         standing_list = ["{} - {}".format(index + 1, player)
                          for index, player in enumerate(self.game.standing)]
         message = "Standing:" + linesep + linesep.join(standing_list)
-        print(message)
+        self.myprint(PRINT_TO_ALL,message)
 
     def print_board(self):
-        print(self.game.get_board_pic())
+        self.myprint(PRINT_TO_ALL,self.game.get_board_pic())
 
     def run_recorded_game(self):
         '''get history of game (rolled_value
@@ -262,12 +268,12 @@ class CLIGame():
         record_runner in order to replay game'''
         self.load_recorded_players()
         self.print_players_info()
-        self.prompt_to_continue()
+        self.prompt_to_continue(MASTER)
         for rolled_value, index in self.record_runner:
             self.game.play_turn(index, rolled_value)
             self.print_info_after_turn()
             self.print_board()
-            self.prompt_to_continue()
+            self.prompt_to_continue(MASTER)
             self.print_board()
 
     def continue_recorded_game(self):
@@ -302,21 +308,22 @@ class CLIGame():
                 self.prompt_choose_pawn):
             self.game.add_player(player)
 
-    def load_players_for_new_game(self):
-        self.prompt_for_players()
-        self.print_players_info()
-        self.record_players()
-
-    def wait_for_connections(self): 
+    def wait_for_connections(self):            
         #wait for other players to connect
         for player in self.game.players:
             #if player is human and not connected
             if player.choose_pawn_delegate is not None and player.conn is None:
+                self.myprint(PRINT_TO_ALL,"waiting for player " + str(player.ID) + " to connect") 
                 player.conn, addr = self.server.accept()
                 self.myprint(PRINT_TO_ALL,"player " + str(player.ID) + " connected") 
         
-        self.myprint(PRINT_TO_ALL, "all players connected")
-        return 
+        self.myprint(PRINT_TO_ALL, "all players connected") 
+
+    def load_players_for_new_game(self):
+        self.prompt_for_players()
+        self.wait_for_connections()
+        self.print_players_info()
+        self.record_players()
 
     def play_game(self):
         '''mainly calling play_turn
@@ -329,8 +336,8 @@ class CLIGame():
                 self.print_board()
                 self.record_maker.add_game_turn(
                     self.game.rolled_value, self.game.index)
-                self.prompt_to_continue()
-            print("Game finished")
+                self.prompt_to_continue(self.game.curr_player.ID)
+            self.myprint(PRINT_TO_ALL,"Game finished")
             self.print_standing()
             self.offer_save_game()
         except (KeyboardInterrupt, EOFError):
@@ -354,12 +361,11 @@ class CLIGame():
         self.server = server
         master = Player(MASTER, "yellow", 'Master', None, master_conn)
         self.game.add_player(master)
-        print()
+        self.myprint(PRINT_TO_ALL,'\n')
         try:
             choice = self.get_user_initial_choice()
             if choice == 0:  # start new game
                 self.load_players_for_new_game()
-                self.wait_for_connections()
                 self.play_game()
             elif choice == 1:  # continue game
                 self.continue_recorded_game()
@@ -368,12 +374,12 @@ class CLIGame():
                           "Game is already finished",
                           linesep + "Exit")
                 else:
-                    self.prompt_to_continue()
+                    self.prompt_to_continue(MASTER)
                     self.play_game()
             elif choice == 2:  # review played game
                 self.run_recorded_game()
         except (KeyboardInterrupt, EOFError):
-            print(linesep + "Exit Game")
+            self.myprint(PRINT_TO_ALL,linesep + "Exit Game")
 
 
 if __name__ == '__main__':
