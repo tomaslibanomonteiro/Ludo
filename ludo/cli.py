@@ -20,6 +20,8 @@ class CLIGame():
         self.record_runner = None
 
     def myprint(self, players, msg):
+        #for debug
+        print(msg)
         #send the msg to the players
         for this_player in self.game.players:
             if this_player.ID in players and this_player.conn is not None:
@@ -111,7 +113,7 @@ class CLIGame():
         #if choosing player options for Master (choose_pawn_delegate will be None when first entered in list)
         if self.game.players[0].choose_pawn_delegate == None:
             #for Master player, assume human and all colours
-            available_colours = ['yellow', 'blue', 'red', 'green']
+            available_colours = sorted(['yellow', 'blue', 'red', 'green'])
             name = self.validate_input(MASTER,[MASTER],"Enter name for player", str, str_len=(1, 30))
             available_options = range(len(available_colours))
             options = ["{} - {}".format(index, colour)
@@ -136,7 +138,7 @@ class CLIGame():
             choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
 
             if choice == 1:
-                name = self.validate_input("Enter name for player",
+                name = self.validate_input(MASTER, [MASTER],"Enter name for player",
                                         str, str_len=(1, 30))
                 available_options = range(len(available_colours))
                 if len(available_options) > 1:
@@ -147,16 +149,16 @@ class CLIGame():
                             available_colours)]
                     text = "choose colour" + linesep
                     text += linesep.join(options)
-                    choice = self.validate_input(text, int, available_options)
+                    choice = self.validate_input(MASTER, [MASTER],text, int, available_options)
                     colour = available_colours.pop(choice)
                 else:
                     # only one colour left
                     colour = available_colours.pop()
-                player = Player(colour, name, self.prompt_choose_pawn)
+                player = Player(len(self.game.players), colour, name, self.prompt_choose_pawn)
             elif choice == 0:
                 # automatically assign colours
                 colour = available_colours.pop()
-                player = Player(colour)
+                player = Player(len(self.game.players), colour)
             self.game.add_player(player)
 
     def prompt_for_players(self):
@@ -172,7 +174,7 @@ class CLIGame():
                              "0 - add player",
                              "1 - start game with {} players"])
         for i in range(2, 4):
-            choice = self.validate_input(text.format(str(i)), int, (0, 1))
+            choice = self.validate_input(MASTER, [MASTER], text.format(str(i)), int, (0, 1))
             if choice == 1:
                 break
             elif choice == 0:
@@ -296,6 +298,10 @@ class CLIGame():
         self.print_players_info()
         self.record_players()
 
+    def wait_for_connections() #!!
+        #wait for other players to connect
+        return NotImplementedError
+
     def play_game(self):
         '''mainly calling play_turn
         Game's method while game finished
@@ -337,6 +343,7 @@ class CLIGame():
             choice = self.get_user_initial_choice()
             if choice == 0:  # start new game
                 self.load_players_for_new_game()
+                self.wait_for_connections()
                 self.play_game()
             elif choice == 1:  # continue game
                 self.continue_recorded_game()
