@@ -2,7 +2,7 @@
 import socket
 import select
 import sys
-from .setIPandPort import setIPandPort
+from setIPandPort import setIPandPort
 
 def main():
     DEFAULT_IP_ADDRESS, DEFAULT_PORT_NUMBER = setIPandPort()
