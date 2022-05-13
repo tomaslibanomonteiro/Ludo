@@ -2,6 +2,8 @@ from .game import Player, Game
 from .painter import present_6_die_name
 from .recorder import RunRecord, MakeRecord
 from os import linesep
+from collections import deque
+
 
 MASTER = 1
 
@@ -75,7 +77,7 @@ class CLIGame():
                              "0 - start new game",
                              "1 - continue game",
                              "2 - run (review) recorded game"])
-        choice = self.validate_input(MASTER, MASTER, text, int, (0, 1, 2))
+        choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1, 2))
         return choice
 
     def prompt_for_file(self, mode="rb"):
@@ -105,44 +107,66 @@ class CLIGame():
         initial player instance and
         add player to the game
         '''
-        available_colours = self.game.get_available_colours()
-        text = linesep.join(["choose type of player",
-                             "0 - computer",
-                             "1 - human"])
-        choice = self.validate_input(text, int, (0, 1))
-
-        if choice == 1:
-            name = self.validate_input("Enter name for player",
-                                       str, str_len=(1, 30))
+        
+        #if choosing player options for Master (choose_pawn_delegate will be None when first entered in list)
+        if self.game.players[0].choose_pawn_delegate == None:
+            #for Master player, assume human and all colours
+            available_colours = ['yellow', 'blue', 'red', 'green']
+            name = self.validate_input(MASTER,[MASTER],"Enter name for player", str, str_len=(1, 30))
             available_options = range(len(available_colours))
-            if len(available_options) > 1:
-                # show available colours
-                options = ["{} - {}".format(index, colour)
-                           for index, colour in
-                           zip(available_options,
-                           available_colours)]
-                text = "choose colour" + linesep
-                text += linesep.join(options)
-                choice = self.validate_input(text, int, available_options)
-                colour = available_colours.pop(choice)
-            else:
-                # only one colour left
+            options = ["{} - {}".format(index, colour)
+                    for index, colour in
+                    zip(available_options,
+                    available_colours)]
+            text = "choose colour" + linesep
+            text += linesep.join(options)
+            choice = self.validate_input(MASTER,[MASTER],text, int, available_options)
+            colour = available_colours.pop(choice)
+
+            player = Player(MASTER, colour, name, self.prompt_choose_pawn, self.master_conn)
+
+            self.game.players = deque()
+            self.game.add_player(player)
+        else:
+            available_colours = self.game.get_available_colours()
+
+            text = linesep.join(["choose type of player",
+                                "0 - computer",
+                                "1 - human"])
+            choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
+
+            if choice == 1:
+                name = self.validate_input("Enter name for player",
+                                        str, str_len=(1, 30))
+                available_options = range(len(available_colours))
+                if len(available_options) > 1:
+                    # show available colours
+                    options = ["{} - {}".format(index, colour)
+                            for index, colour in
+                            zip(available_options,
+                            available_colours)]
+                    text = "choose colour" + linesep
+                    text += linesep.join(options)
+                    choice = self.validate_input(text, int, available_options)
+                    colour = available_colours.pop(choice)
+                else:
+                    # only one colour left
+                    colour = available_colours.pop()
+                player = Player(colour, name, self.prompt_choose_pawn)
+            elif choice == 0:
+                # automatically assign colours
                 colour = available_colours.pop()
-            player = Player(colour, name, self.prompt_choose_pawn)
-        elif choice == 0:
-            # automatically assign colours
-            colour = available_colours.pop()
-            player = Player(colour)
-        self.game.add_player(player)
+                player = Player(colour)
+            self.game.add_player(player)
 
     def prompt_for_players(self):
         '''put all players in the game'''
         counts = ("first", "second", "third", "fourth last")
         text_add = "Add {} player"
         for i in range(2):
-            print(text_add.format(counts[i]))
+            self.myprint([MASTER],text_add.format(counts[i]))
             self.prompt_for_player()
-            print("Player added")
+            self.myprint([MASTER],"Player added\n")
 
         text = linesep.join(["Choose option:",
                              "0 - add player",
@@ -152,9 +176,9 @@ class CLIGame():
             if choice == 1:
                 break
             elif choice == 0:
-                print(text_add.format(counts[i]))
+                self.myprint([MASTER], text_add.format(counts[i]))
                 self.prompt_for_player()
-                print("Player added")
+                self.myprint([MASTER], "Player added\n")
 
     def prompt_choose_pawn(self):
         '''used when player (human) has more than
