@@ -6,6 +6,7 @@ from collections import deque
 
 
 MASTER = 1
+PRINT_TO_ALL = 0
 
 class CLIGame():
 
@@ -19,24 +20,32 @@ class CLIGame():
         # getting game data
         self.record_runner = None
 
-    def myprint(self, players, msg):
+    def myprint(self, players_IDs, msg):
         #for debug
         print(msg)
-        #send the msg to the players
-        for this_player in self.game.players:
-            if this_player.ID in players and this_player.conn is not None:
-                this_player.conn.send(msg.encode())
 
+        if players_IDs == PRINT_TO_ALL:
+            #send message to all connected players
+            for player in self.game.players:
+                if player.conn is not None:
+                    player.conn.send(msg.encode())
+        else:
+            #send the msg to the players specified
+            for player in self.game.players:
+                if player.ID in players_IDs and player.conn is not None:
+                    player.conn.send(msg.encode())
         return 
 
-    def myinput(self, player, msg):
+    def myinput(self, player_ID, msg):
         #get the input from corresponding player
-        for this_player in self.game.players:
-            if this_player.ID == player: 
+        for player in self.game.players:
+            if player.ID == player_ID: 
                 break
-        this_player.conn.send(msg.encode())
-        msg = this_player.conn.recv(2048).decode()
-
+        if msg is not None:
+            print(msg)
+            player.conn.send(msg.encode())
+        msg = player.conn.recv(2048).decode()
+        print("<player " + str(player.ID) + ">",msg)
         return msg
 
     def validate_input(self, player_input, players_output, prompt, desire_type, allawed_input=None,
@@ -71,7 +80,7 @@ class CLIGame():
                     self.myprint(players_output,linesep + error_mess)
             else:
                 break
-        self.myprint(players_output,'\n')
+        #!self.myprint(players_output,'\n')
         return choice
 
     def get_user_initial_choice(self):
@@ -154,11 +163,11 @@ class CLIGame():
                 else:
                     # only one colour left
                     colour = available_colours.pop()
-                player = Player(len(self.game.players), colour, name, self.prompt_choose_pawn)
+                player = Player(len(self.game.players)+1, colour, name, self.prompt_choose_pawn)
             elif choice == 0:
                 # automatically assign colours
                 colour = available_colours.pop()
-                player = Player(len(self.game.players), colour)
+                player = Player(len(self.game.players)+1, colour)
             self.game.add_player(player)
 
     def prompt_for_players(self):
@@ -207,11 +216,11 @@ class CLIGame():
 
     def print_players_info(self):
         word = "start" if self.game.rolled_value is None else "continue"
-        print("Game {} with {} players:".format(
+        self.myprint(PRINT_TO_ALL,"Game {} with {} players:".format(
               word,
               len(self.game.players)))
         for player in self.game.players:
-            print(player)
+            self.myprint(PRINT_TO_ALL,"{}({})".format(player.name, player.colour))
         print()
 
     def print_info_after_turn(self):
@@ -298,9 +307,16 @@ class CLIGame():
         self.print_players_info()
         self.record_players()
 
-    def wait_for_connections() #!!
+    def wait_for_connections(self): 
         #wait for other players to connect
-        return NotImplementedError
+        for player in self.game.players:
+            #if player is human and not connected
+            if player.choose_pawn_delegate is not None and player.conn is None:
+                player.conn, addr = self.server.accept()
+                self.myprint(PRINT_TO_ALL,"player " + str(player.ID) + " connected") 
+        
+        self.myprint(PRINT_TO_ALL, "all players connected")
+        return 
 
     def play_game(self):
         '''mainly calling play_turn
