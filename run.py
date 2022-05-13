@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 
 from ludo.cli import CLIGame
+from .setIPandPort import setIPandPort
+
 import socket
 import sys
 '''Replace "thread" with "_thread" for python 3'''
 from _thread import *
 
-#wifi from home
-#DEFAULT_IP_ADDRESS = "192.168.1.252"
-
-#hotspot Ricardo ifconfig -a
-DEFAULT_IP_ADDRESS = "192.168.43.73"
-DEFAULT_PORT_NUMBER = 8081
-
 def makeServer(listen):
+    DEFAULT_IP_ADDRESS, DEFAULT_PORT_NUMBER = setIPandPort()
     """The first argument AF_INET is the address domain of the
     socket. This is used when we have an Internet Domain with
     any two hosts The second argument is the type of socket.

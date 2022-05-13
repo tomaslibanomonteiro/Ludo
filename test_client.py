@@ -3,14 +3,8 @@ import socket
 import select
 import sys
 import time
+from .setIPandPort import setIPandPort
 
-#wifi from home
-#DEFAULT_IP_ADDRESS = "192.168.1.252"
-
-#hotspot Ricardo ifconfig -a
-DEFAULT_IP_ADDRESS = "192.168.43.73"
-
-DEFAULT_PORT_NUMBER = 8081
 SLEEP_TIME = 0.2 #seconds to wait until recv
 
 START_NEM_GAME = "0"
@@ -85,6 +79,8 @@ def mysend(server, msg):
 
 def main():
 
+    DEFAULT_IP_ADDRESS, DEFAULT_PORT_NUMBER = setIPandPort()
+    
     # checks whether sufficient arguments have been provided
     if len(sys.argv) != 3:
         print("Going to defaults: IP address -> " + DEFAULT_IP_ADDRESS + ", port number -> " + str(DEFAULT_PORT_NUMBER))

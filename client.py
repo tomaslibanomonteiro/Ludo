@@ -2,15 +2,10 @@
 import socket
 import select
 import sys
-
-#wifi from home
-#DEFAULT_IP_ADDRESS = "192.168.1.252"
-
-#hotspot Ricardo ifconfig -a
-DEFAULT_IP_ADDRESS = "192.168.43.73"
-DEFAULT_PORT_NUMBER = 8081
+from .setIPandPort import setIPandPort
 
 def main():
+    DEFAULT_IP_ADDRESS, DEFAULT_PORT_NUMBER = setIPandPort()
 
     # checks whether sufficient arguments have been provided
     if len(sys.argv) != 3:
