@@ -123,6 +123,7 @@ class CLIGame():
             #for Master player, assume human and all colours
             available_colours = sorted(['yellow', 'blue', 'red', 'green'])
             name = self.validate_input(MASTER,[MASTER],"Enter name for player", str, str_len=(1, 30))
+            name = name[0:-1]
             available_options = range(len(available_colours))
             options = ["{} - {}".format(index, colour)
                     for index, colour in
@@ -148,6 +149,7 @@ class CLIGame():
             if choice == 1:
                 name = self.validate_input(MASTER, [MASTER],"Enter name for player",
                                         str, str_len=(1, 30))
+                name = name[0:-1]
                 available_options = range(len(available_colours))
                 if len(available_options) > 1:
                     # show available colours
