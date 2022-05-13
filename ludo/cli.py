@@ -262,6 +262,18 @@ class CLIGame():
     def print_board(self):
         self.myprint(PRINT_TO_ALL,self.game.get_board_pic())
 
+    def load_recorded_players(self):
+        '''get recorded (save) players from
+        recorder and put them in game
+        '''
+        if self.record_runner is None:
+            file_descr = self.prompt_for_file()
+            self.record_runner = RunRecord(file_descr)
+            file_descr.close()
+        for player in self.record_runner.get_players(
+                self.prompt_choose_pawn):
+            self.game.add_player(player)
+
     def run_recorded_game(self):
         '''get history of game (rolled_value
         and  index's allowed pawn) from 
