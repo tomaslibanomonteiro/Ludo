@@ -1,5 +1,5 @@
 from .game import Player, Game
-from .painter import present_6_die_name
+from .painter import present_6_dice_name
 from .recorder import RunRecord, MakeRecord
 from os import linesep
 from collections import deque
@@ -198,7 +198,7 @@ class CLIGame():
         This method is pass as a callable during
         player instantiation
         '''
-        text = present_6_die_name(self.game.rolled_value,
+        text = present_6_dice_name(self.game.rolled_value,
                                   str(self.game.curr_player))
         text += linesep + "has more than one possible pawns to move."
         text += " Choose pawn" + linesep
@@ -234,7 +234,7 @@ class CLIGame():
         '''it used game attributes to printing info'''
         pawns_id = [pawn.id for pawn in self.game.allowed_pawns]
         # nicer printing of dice
-        message = present_6_die_name(self.game.rolled_value,
+        message = present_6_dice_name(self.game.rolled_value,
                                      str(self.game.curr_player))
         message += linesep
         if self.game.allowed_pawns:
