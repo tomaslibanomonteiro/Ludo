@@ -111,7 +111,7 @@ class CLIGame():
                              "0 - No",
                              "1 - Yes"])
         choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
-        return choice == 1
+        return choice 
 
     def prompt_for_player(self):
         ''' get player attributes from myinput,
@@ -329,9 +329,7 @@ class CLIGame():
             self.offer_save_game()
         except (KeyboardInterrupt, EOFError):
             print(linesep +
-                  "Exiting game. " +
-                  "Save game and continue same game later?")
-            self.offer_save_game()
+                  "Exiting game. ")
             raise
 
     def offer_save_game(self):

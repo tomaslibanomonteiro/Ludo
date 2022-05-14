@@ -57,7 +57,8 @@ def myrecv(server):
 
 def mysend(server, msg):
     print("<You>"+msg)
-    msg = msg + '\n'
+    if msg != '\n':
+        msg = msg + '\n'
     msg = msg.encode()
     check = server.send(msg)
     if check == 0:

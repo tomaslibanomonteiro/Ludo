@@ -170,14 +170,14 @@ class Board():
         return self.painter.paint(positions)
 
 
-class Die():
+class Dice():
 
     MIN = 1
     MAX = 6
 
     @staticmethod
     def throw():
-        return random.randint(Die.MIN, Die.MAX)
+        return random.randint(Dice.MIN, Dice.MAX)
 
 
 class Game():
@@ -223,7 +223,7 @@ class Game():
         It is underscore because if called 
         outside the class will break order
         '''
-        if not self.rolled_value == Die.MAX:
+        if not self.rolled_value == Dice.MAX:
             self.players.rotate(-1)
         return self.players[0]
 
@@ -238,7 +238,7 @@ class Game():
         from die allowed to move the pawn
         '''
         allowed_pawns = []
-        if rolled_value == Die.MAX:
+        if rolled_value == Dice.MAX:
             pawn = self.get_pawn_from_board_pool(player)
             if pawn:
                 allowed_pawns.append(pawn)
@@ -263,7 +263,7 @@ class Game():
         After move ask board if pawn reach end or
         jog others pawn. Check if pawn and player finished.
         '''
-        if self.rolled_value == Die.MAX and\
+        if self.rolled_value == Dice.MAX and\
                 self.board.is_pawn_on_board_pool(pawn):
             self.board.put_pawn_on_starting_square(pawn)
             self._jog_foreign_pawn(pawn)
@@ -291,7 +291,7 @@ class Game():
         self.jog_pawns = []
         self.curr_player = self._get_next_turn()
         if rolled_val is None:
-            self.rolled_value = Die.throw()
+            self.rolled_value = Dice.throw()
         else:
             self.rolled_value = rolled_val
         self.allowed_pawns = self.get_allowed_pawns_to_move(
