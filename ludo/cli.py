@@ -113,7 +113,13 @@ class CLIGame():
         choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
         return choice 
 
-    def prompt_for_player(self):
+    def choose_name(self, player):
+
+        name = self.validate_input(player.ID, [player.ID],"Enter name for player", str, str_len=(1, 30))
+        name = name[0:-1]
+        player.name = name
+
+    def master_prompt_for_player(self):
         ''' get player attributes from myinput,
         initial player instance and
         add player to the game
@@ -139,6 +145,8 @@ class CLIGame():
 
             self.game.players = deque()
             self.game.add_player(player)
+    
+        #else choosing options for other human or pc players
         else:
             available_colours = self.game.get_available_colours()
 
@@ -148,9 +156,6 @@ class CLIGame():
             choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
 
             if choice == 1:
-                name = self.validate_input(MASTER, [MASTER],"Enter name for player",
-                                        str, str_len=(1, 30))
-                name = name[0:-1]
                 available_options = range(len(available_colours))
                 if len(available_options) > 1:
                     # show available colours
@@ -165,6 +170,7 @@ class CLIGame():
                 else:
                     # only one colour left
                     colour = available_colours.pop()
+                name = "Player " + str(len(self.game.players)+1)
                 player = Player(len(self.game.players)+1, colour, name, self.prompt_choose_pawn)
             elif choice == 0:
                 # automatically assign colours
@@ -172,13 +178,16 @@ class CLIGame():
                 player = Player(len(self.game.players)+1, colour)
             self.game.add_player(player)
 
-    def prompt_for_players(self):
+    def master_prompt_for_players(self):
         '''put all players in the game'''
         counts = ("first", "second", "third", "fourth last")
         text_add = "Add {} player"
         for i in range(2):
-            self.myprint([MASTER],text_add.format(counts[i]))
-            self.prompt_for_player()
+            if i == 0:
+                self.myprint([MASTER],"Setting up your player (MASTER)")
+            else:
+                self.myprint([MASTER],text_add.format(counts[i]))
+            self.master_prompt_for_player()
             self.myprint([MASTER],"Player added\n")
 
         text = linesep.join(["Choose option:",
@@ -190,7 +199,7 @@ class CLIGame():
                 break
             elif choice == 0:
                 self.myprint([MASTER], text_add.format(counts[i]))
-                self.prompt_for_player()
+                self.master_prompt_for_player()
                 self.myprint([MASTER], "Player added\n")
 
     def prompt_choose_pawn(self):
@@ -295,19 +304,38 @@ class CLIGame():
         for player in self.game.players:
             self.record_maker.add_player(player)
 
+    def connect_player(self,player):
+        Pass = 0
+        #cicle for all players trying to connect
+        while Pass != self.GamePass:
+            player.conn, addr = self.server.accept()
+            #3 chances per player to guess the Pass
+            for i in range(3):
+                prompt = "Game Password? (try " + str(i+1) + "/3)"
+                Pass = self.validate_input(player.ID, [player.ID], prompt, str)
+                if Pass == self.GamePass:
+                    break
+                else:
+                    self.myprint([player.ID],"Wrong Password, try again")
+            if Pass != self.GamePass:
+                player.conn.close()
+        self.choose_name(player)
+
+        return
+
     def wait_for_connections(self):            
         #wait for other players to connect
         for player in self.game.players:
             #if player is human and not connected
             if player.choose_pawn_delegate is not None and player.conn is None:
                 self.myprint(PRINT_TO_ALL,"waiting for player " + str(player.ID) + " to connect") 
-                player.conn, addr = self.server.accept()
+                self.connect_player(player)
                 self.myprint(PRINT_TO_ALL,"player " + str(player.ID) + " connected") 
         
         self.myprint(PRINT_TO_ALL, "all players connected") 
 
     def load_players_for_new_game(self):
-        self.prompt_for_players()
+        self.master_prompt_for_players()
         self.wait_for_connections()
         self.print_players_info()
         self.record_players()
@@ -339,6 +367,11 @@ class CLIGame():
             self.record_maker.save(file_descr)
             file_descr.close()
             print("Game is saved")
+    
+    def get_game_pass(self):
+        prompt = "Set Game Pass for other human players to connect (4-30 char)"
+        GamePass = self.validate_input(MASTER,[MASTER],prompt, str, str_len=(4, 30))
+        return GamePass
 
     def start(self, master_conn, server):
         '''main method, starting cli'''
@@ -347,6 +380,7 @@ class CLIGame():
         master = Player(MASTER, "yellow", 'Master', None, master_conn)
         self.game.add_player(master)
         self.myprint(PRINT_TO_ALL,'\n')
+        self.GamePass = self.get_game_pass()
         try:
             choice = self.get_user_initial_choice()
             if choice == 0:  # start new game
