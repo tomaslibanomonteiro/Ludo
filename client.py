@@ -38,7 +38,7 @@ def main():
 
         for socks in read_sockets:
             if socks == server:
-                message = socks.recv(2048).decode()
+                message = socks.recv(10000).decode()
                 if not message:
                     print("server disconnected")
                     exit()

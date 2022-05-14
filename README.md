@@ -44,6 +44,7 @@ python client.py "IP_ADDRESS "PORT_NUMBER"
 ## Authors
 
 Tomás Pereira de Brito Líbano Monteiro, tomasl00@gmail.com 
+Ricardo Pacheco Café, ricardocafee00@gmail.com
 
 
 

@@ -7,45 +7,38 @@ from SetIPandPort.setIPandPort import setIPandPort
 
 SLEEP_TIME = 0.01 #seconds to wait until recv
 
-START_NEM_GAME = "0"
+GAME_PASS = "pass"
 ADD_PLAYER = "0"
 START_GAME_NOW = "1"
 
 COLOUR = "0"
 
 MASTER_NAME = 'MASTER'
-NAME2 = 'HUMAN PLAYER X'
-NAME3 = 'HUMAN PLAYER Y'
-NAME4 = 'HUMAN PLAYER Z'
 
 PC_TYPE = "0"
 HUMAN_TYPE = "1"
 
 #create game with 4 players, 3 human 1 pc
-MESSAGE_LIST1 = [START_NEM_GAME, MASTER_NAME, COLOUR, 
-                        HUMAN_TYPE, NAME2, COLOUR,
+MESSAGE_LIST1 = [GAME_PASS, MASTER_NAME, COLOUR, 
+                        HUMAN_TYPE, COLOUR,
                         ADD_PLAYER, PC_TYPE,
-                        ADD_PLAYER, HUMAN_TYPE, NAME4]
+                        ADD_PLAYER, HUMAN_TYPE]
 
 
 #create game with 3 players, 1 human 2 pc
-MESSAGE_LIST2 =  [START_NEM_GAME, MASTER_NAME, COLOUR, 
+MESSAGE_LIST2 =  [GAME_PASS, MASTER_NAME, COLOUR, 
                         PC_TYPE,
                         ADD_PLAYER, PC_TYPE,
                         START_GAME_NOW]      
 
-#create game with 3 players, 1 human 2 pc
-MESSAGE_LIST3 =  [START_NEM_GAME, MASTER_NAME, COLOUR, 
-                        PC_TYPE,
-                        START_GAME_NOW]      
-
-MESSAGE_LIST4 = MESSAGE_LIST3
-for i in range(100):
-    MESSAGE_LIST4.append("\n")
-    MESSAGE_LIST4.append("1")
+#create game with 3 players, 1 human 2 pc and play it until the end
+MESSAGE_LIST3 = MESSAGE_LIST2
+for i in range(50):
+    MESSAGE_LIST3.append("\n")
+    MESSAGE_LIST3.append("1")
 
 
-MESSAGE_LIST = MESSAGE_LIST4
+MESSAGE_LIST = MESSAGE_LIST3
 
 def myrecv(server):
     time.sleep(SLEEP_TIME)
@@ -111,6 +104,7 @@ def main():
                     exit()
                 else:
                     print (message)
+                    sys.stdin.flush()
             else:
                 message = sys.stdin.readline()
                 server.send(message.encode())
