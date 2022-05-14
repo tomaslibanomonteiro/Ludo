@@ -82,8 +82,8 @@ class PaintBoard():
         return board_paint_str
 
 
-def present_6_die_name(number, name):
-    '''nicer print of die and
+def present_6_dice_name(number, name):
+    '''nicer print of dice and
     name of the player
     '''
     hor_line = 9 * '-'
@@ -96,7 +96,7 @@ def present_6_die_name(number, name):
               ['| #   # |', '|   #   |', '| #   # |'],
               ['| # # # |', '|       |', '| # # # |']]
     matrix = [[sps + cell for cell in row] for row in matrix]
-    die = matrix[number - 1]
-    die[1] = die[1] + "   " + name
-    s = linesep.join([hor_line] + die + [hor_line])
+    dice = matrix[number - 1]
+    dice[1] = dice[1] + "   " + name
+    s = linesep.join([hor_line] + dice + [hor_line])
     return s

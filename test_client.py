@@ -9,6 +9,8 @@ SLEEP_TIME = 0.2 #seconds to wait until recv
 
 START_NEM_GAME = "0"
 ADD_PLAYER = "0"
+START_GAME_NOW = "1"
+
 COLOUR = "0"
 
 MASTER_NAME = 'MASTER'
@@ -20,11 +22,18 @@ PC_TYPE = "0"
 HUMAN_TYPE = "1"
 
 #create game with 4 players, 3 human 1 pc
-MESSAGE_LIST = [START_NEM_GAME, MASTER_NAME, COLOUR, 
-                        HUMAN_TYPE, NAME2, COLOUR,
+# MESSAGE_LIST = [START_NEM_GAME, MASTER_NAME, COLOUR, 
+#                         HUMAN_TYPE, NAME2, COLOUR,
+#                         ADD_PLAYER, PC_TYPE,
+#                         ADD_PLAYER, HUMAN_TYPE, NAME4]
+
+
+#create game with 3 players, 1 human 2 pc
+MESSAGE_LIST =  [START_NEM_GAME, MASTER_NAME, COLOUR, 
+                        PC_TYPE,
                         ADD_PLAYER, PC_TYPE,
-                        ADD_PLAYER, HUMAN_TYPE, NAME4]
-                        
+                        START_GAME_NOW]                        
+
 """
 def myrecv(server):
     while True: 
