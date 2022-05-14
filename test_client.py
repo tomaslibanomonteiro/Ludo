@@ -24,27 +24,36 @@ MESSAGE_LIST1 = [GAME_PASS, MASTER_NAME, COLOUR,
                         ADD_PLAYER, PC_TYPE,
                         ADD_PLAYER, HUMAN_TYPE]
 
-
 #create game with 3 players, 1 human 2 pc
 MESSAGE_LIST2 =  [GAME_PASS, MASTER_NAME, COLOUR, 
                         PC_TYPE,
                         ADD_PLAYER, PC_TYPE,
                         START_GAME_NOW]      
 
+#create game with 2 players, 1 human 1 pc
+MESSAGE_LIST3 =  [GAME_PASS, MASTER_NAME, COLOUR, 
+                        PC_TYPE,
+                        START_GAME_NOW]
+                              
+
 #create game with 3 players, 1 human 2 pc and play it until the end
-MESSAGE_LIST3 = MESSAGE_LIST2
-for i in range(200):
+MESSAGE_LIST_LONG = MESSAGE_LIST3
+for i in range(100):
     MESSAGE_LIST3.append("\n")
     MESSAGE_LIST3.append("1")
 
-
-MESSAGE_LIST = MESSAGE_LIST3
+#set which of the above message lists will be sent
+MESSAGE_LIST = MESSAGE_LIST_LONG
 
 def myrecv(server):
     time.sleep(SLEEP_TIME)
-    msg = server.recv(10000).decode()
-    if not msg:
-        print("server disconnected")
+    try:
+        msg = server.recv(10000).decode()
+        if not msg:
+            print("server disconnected")
+            exit()
+    except:
+        #print("server disconnected")
         exit()
     print(msg)
 
