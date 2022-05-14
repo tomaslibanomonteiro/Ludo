@@ -1,6 +1,5 @@
 from .game import Player, Game
 from .painter import present_6_dice_name
-from .recorder import RunRecord, MakeRecord
 from os import linesep
 from collections import deque
 
@@ -15,10 +14,9 @@ class CLIGame():
         self.game = Game()
         # used for nicer printing
         self.prompted_for_pawn = False
-        # saving game data
-        self.record_maker = MakeRecord()
         # getting game data
-        self.record_runner = None
+       # self.record_runner = None
+        #self.recorded = 0
 
     def myprint(self, players_IDs, msg):
         #for debug
@@ -91,27 +89,6 @@ class CLIGame():
         choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
         return choice
 
-    def prompt_for_file(self, mode="rb"):
-        '''return file descriptor'''
-        text = "Enter filename (name of the record)"
-        while True:
-            filename = self.validate_input(MASTER, [MASTER], text, str)
-            try:
-                file_descr = open(filename, mode=mode)
-                return file_descr
-            except IOError as e:
-                print(e)
-                print("Try again")
-
-    def does_user_want_save_game(self):
-        '''return True if user want to save
-        game or False
-        '''
-        text = linesep.join(["Save game?",
-                             "0 - No",
-                             "1 - Yes"])
-        choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
-        return choice 
 
     def choose_name(self, player):
 
@@ -273,36 +250,6 @@ class CLIGame():
     def print_board(self):
         self.myprint(PRINT_TO_ALL,self.game.get_board_pic())
 
-    def load_recorded_players(self):
-        '''get recorded (save) players from
-        recorder and put them in game
-        '''
-        if self.record_runner is None:
-            file_descr = self.prompt_for_file()
-            self.record_runner = RunRecord(file_descr)
-            file_descr.close()
-        for player in self.record_runner.get_players(
-                self.prompt_choose_pawn):
-            self.game.add_player(player)
-
-    def run_recorded_game(self):
-        '''get history of game (rolled_value
-        and  index's allowed pawn) from 
-        record_runner in order to replay game'''
-        self.load_recorded_players()
-        self.print_players_info()
-        self.prompt_to_continue(MASTER)
-        for rolled_value, index in self.record_runner:
-            self.game.play_turn(index, rolled_value)
-            self.print_info_after_turn()
-            self.print_board()
-            self.prompt_to_continue(MASTER)
-            self.print_board()
-
-    def record_players(self):
-        '''save players on recorder'''
-        for player in self.game.players:
-            self.record_maker.add_player(player)
 
     def connect_player(self,player):
         Pass = 0
@@ -338,7 +285,6 @@ class CLIGame():
         self.master_prompt_for_players()
         self.wait_for_connections()
         self.print_players_info()
-        self.record_players()
 
     def play_game(self):
         '''mainly calling play_turn
@@ -349,25 +295,15 @@ class CLIGame():
                 self.game.play_turn()
                 self.print_info_after_turn()
                 self.print_board()
-                self.record_maker.add_game_turn(
-                    self.game.rolled_value, self.game.index)
                 self.prompt_to_continue(self.game.curr_player.ID)
             self.myprint(PRINT_TO_ALL,"Game finished")
             self.print_standing()
-            self.offer_save_game()
+            self.game.finished = True
         except (KeyboardInterrupt, EOFError):
             print(linesep +
-                  "Exiting game. ")
+                  "Exiting game.")     
             raise
-
-    def offer_save_game(self):
-        '''offer user save game'''
-        if self.does_user_want_save_game():
-            file_descr = self.prompt_for_file(mode="wb")
-            self.record_maker.save(file_descr)
-            file_descr.close()
-            print("Game is saved")
-    
+            
     def get_game_pass(self):
         prompt = "Set Game Pass for other human players to connect (4-30 char)"
         GamePass = self.validate_input(MASTER,[MASTER],prompt, str, str_len=(4, 30))
@@ -382,12 +318,9 @@ class CLIGame():
         self.myprint(PRINT_TO_ALL,'\n')
         self.GamePass = self.get_game_pass()
         try:
-            choice = self.get_user_initial_choice()
-            if choice == 0:  # start new game
-                self.load_players_for_new_game()
-                self.play_game()
-            elif choice == 1:  # review played game
-                self.run_recorded_game()
+            self.load_players_for_new_game()
+            self.play_game()
+
         except (KeyboardInterrupt, EOFError):
             self.myprint(PRINT_TO_ALL,linesep + "Exit Game")
 
