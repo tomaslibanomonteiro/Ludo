@@ -15,8 +15,8 @@ class CLIGame():
         # used for nicer printing
         self.prompted_for_pawn = False
         # getting game data
-        self.record_runner = None
-        self.recorded = 0
+       # self.record_runner = None
+        #self.recorded = 0
 
     def myprint(self, players_IDs, msg):
         #for debug
@@ -45,8 +45,6 @@ class CLIGame():
             player.conn.send(msg.encode())
         msg = player.conn.recv(2048).decode()
         print("<player " + str(player.ID) + ">",msg)
-        if self.recorded == 1:
-            msg = "Manel"
         return msg
 
     def validate_input(self, player_input, players_output, prompt, desire_type, allawed_input=None,
