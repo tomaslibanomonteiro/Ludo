@@ -22,56 +22,24 @@ PC_TYPE = "0"
 HUMAN_TYPE = "1"
 
 #create game with 4 players, 3 human 1 pc
-# MESSAGE_LIST = [START_NEM_GAME, MASTER_NAME, COLOUR, 
-#                         HUMAN_TYPE, NAME2, COLOUR,
-#                         ADD_PLAYER, PC_TYPE,
-#                         ADD_PLAYER, HUMAN_TYPE, NAME4]
+MESSAGE_LIST1 = [START_NEM_GAME, MASTER_NAME, COLOUR, 
+                        HUMAN_TYPE, NAME2, COLOUR,
+                        ADD_PLAYER, PC_TYPE,
+                        ADD_PLAYER, HUMAN_TYPE, NAME4]
 
 
 #create game with 3 players, 1 human 2 pc
-MESSAGE_LIST =  [START_NEM_GAME, MASTER_NAME, COLOUR, 
+MESSAGE_LIST2 =  [START_NEM_GAME, MASTER_NAME, COLOUR, 
                         PC_TYPE,
                         ADD_PLAYER, PC_TYPE,
                         START_GAME_NOW]                        
 
-"""
-def myrecv(server):
-    while True: 
-        server.settimeout(2)
 
-        try:
-            msg = server.recv(2048).decode()
-            if not msg:
-                print("server disconnected")
-                exit()
-        except: 
-            print("exception")
-            break
-    server.clearTimeout()
+MESSAGE_LIST = MESSAGE_LIST2
 
-    return msg
-"""
-"""
-def myrecv(socket):
-    start_time = time.time()
-    seconds = 2
-    while True:
-        current_time = time.time()
-        elapsed_time = current_time - start_time
-
-        msg = socket.recv(2048).decode()
-        if not msg:
-            print("server disconnected")
-            exit()
-        else:
-            print(msg)
-        if elapsed_time > seconds:
-            print("Finished iterating in: " + str(int(elapsed_time))  + " seconds")
-            break
-"""
 def myrecv(server):
     time.sleep(SLEEP_TIME)
-    msg = server.recv(2048).decode()
+    msg = server.recv(10000).decode()
     if not msg:
         print("server disconnected")
         exit()
@@ -126,7 +94,7 @@ def main():
 
         for socks in read_sockets:
             if socks == server:
-                message = socks.recv(2048).decode()
+                message = socks.recv(10000).decode()
                 if not message:
                     print("server disconnected")
                     exit()

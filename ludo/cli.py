@@ -23,7 +23,7 @@ class CLIGame():
     def myprint(self, players_IDs, msg):
         #for debug
         print(msg)
-
+        msg = msg + "\n"
         if players_IDs == PRINT_TO_ALL:
             #send message to all connected players
             for player in self.game.players:
@@ -43,6 +43,7 @@ class CLIGame():
                 break
         if msg is not None:
             print(msg)
+            msg = msg + "\n"
             player.conn.send(msg.encode())
         msg = player.conn.recv(2048).decode()
         print("<player " + str(player.ID) + ">",msg)
@@ -55,7 +56,7 @@ class CLIGame():
         param allowed_input can be list of allowed values
         param str_len is two sized tuple if min and max
         '''
-        prompt += linesep + self.prompt_end
+        prompt += linesep
         while True:
             choice = self.myinput(player_input, prompt)
             if not choice:
