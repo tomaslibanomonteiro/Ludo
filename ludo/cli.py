@@ -276,13 +276,6 @@ class CLIGame():
                   "Exiting game.")     
             raise
 
-    def offer_save_game(self):
-        '''offer user save game'''
-        if self.does_user_want_save_game():
-            file_descr = self.prompt_for_file(mode="wb")
-            self.record_maker.save(file_descr)
-            file_descr.close()
-            print("Game is saved")
 
     def start(self, master_conn, server):
         '''main method, starting cli'''
