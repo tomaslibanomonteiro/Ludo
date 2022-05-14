@@ -33,7 +33,7 @@ MESSAGE_LIST2 =  [GAME_PASS, MASTER_NAME, COLOUR,
 
 #create game with 3 players, 1 human 2 pc and play it until the end
 MESSAGE_LIST3 = MESSAGE_LIST2
-for i in range(50):
+for i in range(200):
     MESSAGE_LIST3.append("\n")
     MESSAGE_LIST3.append("1")
 

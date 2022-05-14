@@ -32,8 +32,7 @@ class CLIGame():
             for player in self.game.players:
                 if player.ID in players_IDs and player.conn is not None:
                     player.conn.send(msg.encode())
-        return 
-
+                    
     def myinput(self, player_ID, msg):
         #get the input from corresponding player
         for player in self.game.players:
@@ -88,7 +87,6 @@ class CLIGame():
                              "1 - run (review) recorded game"])
         choice = self.validate_input(MASTER, [MASTER], text, int, (0, 1))
         return choice
-
 
     def choose_name(self, player):
 
@@ -244,12 +242,18 @@ class CLIGame():
     def print_standing(self):
         standing_list = ["{} - {}".format(index + 1, player)
                          for index, player in enumerate(self.game.standing)]
-        message = "Standing:" + linesep + linesep.join(standing_list)
-        self.myprint(PRINT_TO_ALL,message)
+        msg = "Game finished\n\nStanding:" + linesep + linesep.join(standing_list)
+
+        #for debug
+        print(msg)
+        msg = msg + "\n"
+        #send message to all connected players
+        for player in self.game.standing:
+            if player.conn is not None:
+                player.conn.send(msg.encode())
 
     def print_board(self):
         self.myprint(PRINT_TO_ALL,self.game.get_board_pic())
-
 
     def connect_player(self,player):
         Pass = 0
@@ -267,8 +271,6 @@ class CLIGame():
             if Pass != self.GamePass:
                 player.conn.close()
         self.choose_name(player)
-
-        return
 
     def wait_for_connections(self):            
         #wait for other players to connect
@@ -296,7 +298,6 @@ class CLIGame():
                 self.print_info_after_turn()
                 self.print_board()
                 self.prompt_to_continue(self.game.curr_player.ID)
-            self.myprint(PRINT_TO_ALL,"Game finished")
             self.print_standing()
             self.game.finished = True
         except (KeyboardInterrupt, EOFError):

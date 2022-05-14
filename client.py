@@ -44,6 +44,7 @@ def main():
                     exit()
                 else:
                     print (message)
+                    sys.stdin.flush()
             else:
                 message = sys.stdin.readline()
                 server.send(message.encode())
