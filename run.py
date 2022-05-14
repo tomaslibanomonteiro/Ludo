@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-
 from ludo.cli import CLIGame
-from setIPandPort import setIPandPort
+from SetIPandPort.setIPandPort import setIPandPort
 
 import socket
 import sys

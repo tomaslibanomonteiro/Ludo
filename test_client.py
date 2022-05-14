@@ -3,9 +3,9 @@ import socket
 import select
 import sys
 import time
-from setIPandPort import setIPandPort
+from SetIPandPort.setIPandPort import setIPandPort
 
-SLEEP_TIME = 0.2 #seconds to wait until recv
+SLEEP_TIME = 0.01 #seconds to wait until recv
 
 START_NEM_GAME = "0"
 ADD_PLAYER = "0"
@@ -32,10 +32,20 @@ MESSAGE_LIST1 = [START_NEM_GAME, MASTER_NAME, COLOUR,
 MESSAGE_LIST2 =  [START_NEM_GAME, MASTER_NAME, COLOUR, 
                         PC_TYPE,
                         ADD_PLAYER, PC_TYPE,
-                        START_GAME_NOW]                        
+                        START_GAME_NOW]      
+
+#create game with 3 players, 1 human 2 pc
+MESSAGE_LIST3 =  [START_NEM_GAME, MASTER_NAME, COLOUR, 
+                        PC_TYPE,
+                        START_GAME_NOW]      
+
+MESSAGE_LIST4 = MESSAGE_LIST3
+for i in range(100):
+    MESSAGE_LIST4.append("\n")
+    MESSAGE_LIST4.append("1")
 
 
-MESSAGE_LIST = MESSAGE_LIST2
+MESSAGE_LIST = MESSAGE_LIST4
 
 def myrecv(server):
     time.sleep(SLEEP_TIME)
